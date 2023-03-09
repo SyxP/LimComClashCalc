@@ -2,7 +2,7 @@
 
 ![Example Usage](https://raw.githubusercontent.com/SyxP/LimComClashCalc/main/Example%20Usage.png)
 
-Examples of valid skillas: `2(+2)x2`, `2(x2)(x2)`, `5(-2)x2`, `4(+3)(+2)(+1)`.
+Examples of valid skills: `2(+2)x2`, `2(x2)(x2)`, `5(-2)x2`, `4(+3)(+2)(+1)`.
 
 The brackets indicate effect on heads.
 
