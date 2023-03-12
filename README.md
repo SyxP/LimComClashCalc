@@ -10,4 +10,4 @@ Sanity affects heads percentage. +0.45% per sanity.
 
 ----
 
-To use, download `Calc.html` and open in any Browser.
+To use, download `index.html` and open in any Browser or access https://syxp.github.io/LimComClashCalc/.
