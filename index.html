@@ -1,0 +1,135 @@
+<script>
+    function ParseCoins(Coin){
+       Arr = []
+       OneCoin = Coin.match(/^([+-]?[0-9]+)\(([+\-x\*][0-9]+)\)(x[0-9]+)?$/)
+       if (OneCoin) { 
+            // [Str, Init, Change, Multiple]
+            Arr.push(OneCoin[1])
+            var Multiple = OneCoin[3]
+            var Times = 1
+            if (Multiple) {
+                Times = parseInt(Multiple.slice(1))
+            }
+            for (var i = 0; i < Times; i++) {
+                Arr.push(OneCoin[2])
+            }
+       } else if (Coin.split("(").length > 1) {
+            var Tmp = Coin.split("(")
+            Arr.push(Tmp[0])
+            for (var i = 1; i < Tmp.length; i++) {
+                Arr.push(Tmp[i].slice(0, -1))                
+            }
+       }
+
+       console.log(Arr)
+       return Arr
+    }
+
+    function GetVal(Skill, Prob) {
+        if (Skill.length <= 1) return -1
+        var Value = Math.max(parseInt(Skill[0]), 0)
+        for (var i = 1; i < Skill.length; i++) {
+           if (Math.random() < Prob) {
+             // Heads
+             var Curr = Skill[i]
+             if (Curr[0] == '+') {
+                Value += parseInt(Curr.slice(1))
+             } else if (Curr[0] == '-') {
+                Value -= parseInt(Curr.slice(1))
+             } else if (Curr[0] == '*' || Curr[0] == 'x') {
+                Value *= parseInt(Curr.slice(1))
+             }
+            Value = Math.max(Value, 0)
+           }
+        }
+        return Value
+    }
+
+    function Clash(Skill1, Prob1, Skill2, Prob2, Ct) {
+        if (Skill1.length <= 1) { return -(Skill2.length - 1) }
+        if (Skill2.length <= 1) { return  (Skill1.length - 1) }
+        if (Ct == 0) { return 0 }
+
+        var Roll1 = GetVal(Skill1, Prob1)
+        var Roll2 = GetVal(Skill2, Prob2)
+        if (Roll1 > Roll2) {
+            return Clash(Skill1, Prob1, Skill2.slice(0, -1), Prob2, Ct)
+        } else if (Roll1 < Roll2) {
+            return Clash(Skill1.slice(0, -1), Prob1, Skill2, Prob2, Ct)
+        } else {
+            return Clash(Skill1, Prob1, Skill2, Prob2, Ct - 1)
+        }
+    }
+
+    function Compute() {
+        var Skill1 = document.getElementById('skill_one').value
+        var Skill2 = document.getElementById('skill_two').value
+
+        var Sanity1 = document.getElementById('sanity_one').value
+        var Sanity2 = document.getElementById('sanity_two').value
+        const LineBreak = "--------------------------\n"
+
+        var Prob1 = 0.5 + Sanity1*0.0045
+        var Prob2 = 0.5 + Sanity2*0.0045
+
+        Ans = "Skill1: " + Skill1 + " Heads Prob: " + 100*Prob1 + "%\n" 
+        Ans +="Skill2: " + Skill2 + " Heads Prob: " + 100*Prob2 + "%\n"
+        Ans += LineBreak
+
+        var Tries = document.getElementById('tries').value
+        var Outcome = {}
+        var Coin1 = ParseCoins(Skill1)
+        var Coin2 = ParseCoins(Skill2)
+        for (var i = 0; i < Tries; i++) {
+            ClashOutcome = Clash(Coin1, Prob1, Coin2, Prob2, 20)
+            if (Outcome[ClashOutcome] == undefined){ Outcome[ClashOutcome] = 0 }
+            Outcome[ClashOutcome] += 1
+        }
+
+        var Positive = 0
+        var Negative = 0
+        for (const [key, value] of Object.entries(Outcome)) {
+            if (key > 0) {Positive += value}
+            if (key < 0) {Negative += value}
+        }
+        Ans += "Skill 1 wins " + (100*Positive/(Positive + Negative)).toFixed(2) + "% of the time.\n"
+        Ans += "Skill 2 wins " + (100*Negative/(Positive + Negative)).toFixed(2) + "% of the time.\n"
+        Ans += LineBreak
+        for (const [key, value] of Object.entries(Outcome)) {
+            if (key > 0) {
+                Ans += (value/Tries*100).toFixed(2) + "% of the time, Skill 1 won by " + key + " coin(s).\n"
+            } else if (key < 0) {
+                Ans += (value/Tries*100).toFixed(2) + "% of the time, Skill 2 won by " + -key + " coin(s).\n"
+            } else {
+                Ans += (value/Tries*100).toFixed(2) + "% of the time, the two skills tied.\n"
+            }
+        }
+
+        document.getElementById('output').value = Ans;
+    }
+</script>
+
+<html>
+  <head>
+    <title>Clash Calculator</title>
+  </head>
+  <body>
+    <h1>Clash Calculator</h1>
+    <hr>
+    <div>
+        Skill 1: <input type="text" id="skill_one" value="2(+2)x3"></input>, Sanity: <input type="number" id="sanity_one" value=0></input>
+    </div>
+    <div>
+        Skill 2: <input type="text" id="skill_two" value="4(+3)"></input>, Sanity: <input type="number" id="sanity_two" value=0></input>
+    </div>
+    <div>
+        Number of Tries: <input type="number" id="tries" value=100000></input>
+    </div>
+    <button onclick="Compute()">Submit</button>
+    <hr>
+
+    <textarea id="output" name="output" rows="10" cols="50">
+Press Submit to Start.
+    </textarea>
+  </body>
+</html>
