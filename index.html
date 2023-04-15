@@ -131,7 +131,7 @@
             if (key > 0) {
                 Ans += (value/Tries*100).toFixed(2) + "% of the time, Skill 1 won by " + key + " coin" + (key != 1 ? "s" : "") + ".\n"
             } else if (key < 0) {
-                Ans += (value/Tries*100).toFixed(2) + "% of the time, Skill 2 won by " + -key + " coin" + (key != 1 ? "s" : "") + ".\n"
+                Ans += (value/Tries*100).toFixed(2) + "% of the time, Skill 2 won by " + -key + " coin" + (-key != 1 ? "s" : "") + ".\n"
             } else {
                 Ans += (value/Tries*100).toFixed(2) + "% of the time, the two skills tied.\n"
             }
